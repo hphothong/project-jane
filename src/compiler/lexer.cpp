@@ -9,36 +9,36 @@ Lexer::Lexer(std::string filename, std::string fileContents) {
   this->currentCharacter = (char)NULL;
 };
 
-std::vector<Token> Lexer::getTokens() {
-  std::vector<Token> tokens;
+std::vector<std::unique_ptr<Token>> Lexer::getTokens() {
+  std::vector<std::unique_ptr<Token>> pTokens;
 
   this->next();
-  
+
   while (this->currentCharacter != (char)NULL) {
     if (this->currentCharacter == ' ' || this->currentCharacter == '\t') {
       this->next();
       continue;
     } else if (this->isDigit()) {
-      tokens.push_back(this->getNumberToken());
+      pTokens.push_back(this->getNumberToken());
     } else if (this->currentCharacter == '+') {
-      tokens.push_back(Token(TokenType::Addition)); 
+      pTokens.push_back(std::unique_ptr<Token>(new Token(TokenType::Addition))); 
     } else if (this->currentCharacter == '-') {
-      tokens.push_back(Token(TokenType::Subtraction)); 
+      pTokens.push_back(std::unique_ptr<Token>(new Token(TokenType::Subtraction))); 
     } else if (this->currentCharacter == '*') {
-      tokens.push_back(Token(TokenType::Multiplication)); 
+      pTokens.push_back(std::unique_ptr<Token>(new Token(TokenType::Multiplication))); 
     } else if (this->currentCharacter == '/') {
-      tokens.push_back(Token(TokenType::Division)); 
+      pTokens.push_back(std::unique_ptr<Token>(new Token(TokenType::Division))); 
     } else if (this->currentCharacter == '(') {
-      tokens.push_back(Token(TokenType::LeftParen)); 
+      pTokens.push_back(std::unique_ptr<Token>(new Token(TokenType::LeftParen))); 
     } else if (this->currentCharacter == ')') {
-      tokens.push_back(Token(TokenType::RightParen));
+      pTokens.push_back(std::unique_ptr<Token>(new Token(TokenType::RightParen)));
     } else {
       throw std::runtime_error("Invalid Character '" + std::to_string(this->currentCharacter) + "' at column: " + std::to_string(this->position - 1));
     }
     this->next();
   };
 
-  return tokens;
+  return pTokens;
 }
 
 void Lexer::next() {
@@ -64,7 +64,7 @@ bool Lexer::isDigit() {
     || this->currentCharacter == '9';
 }
 
-Token Lexer::getNumberToken() {
+std::unique_ptr<Token> Lexer::getNumberToken() {
   bool isDouble = false;
   std::string value  = "";
 
@@ -82,8 +82,8 @@ Token Lexer::getNumberToken() {
   this->prev();
 
   if (isDouble) {
-    return NumberToken<double>(TokenType::Double, std::stod(value));
+    return std::unique_ptr<Token>(new NumberToken<double>(TokenType::Double, std::stod(value)));
   }
 
-  return NumberToken<int>(TokenType::Integer, std::stoi(value));
+  return std::unique_ptr<Token>(new NumberToken<int>(TokenType::Integer, std::stoi(value)));
 }

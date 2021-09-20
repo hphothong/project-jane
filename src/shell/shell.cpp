@@ -1,4 +1,5 @@
 #include <iostream>
+#include <memory>
 #include <string>
 #include "../compiler/lexer.hpp"
 
@@ -11,9 +12,9 @@ int main() {
       cout << "shell>";
       getline(cin, input);
       Lexer lexer = Lexer("shell", input);
-      vector<Token> tokens = lexer.getTokens();
-      for (auto token : tokens) {
-        cout << token.toString() << endl;
+      vector<std::unique_ptr<Token>> pTokens = lexer.getTokens();
+      for (auto&& p : pTokens) {
+        cout << p->toString() << endl;
       }
     } catch (runtime_error const& e) {
       cout << e.what() << endl;

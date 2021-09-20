@@ -1,6 +1,7 @@
 #ifndef LEXER_H
 #define LEXER_H
 
+#include <memory>
 #include <string>
 #include <vector>
 #include "tokens/token.hpp"
@@ -8,7 +9,7 @@
 class Lexer {
   public:
     Lexer(std::string filename, std::string fileContents);
-    std::vector<Token> getTokens();
+    std::vector<std::unique_ptr<Token>> getTokens();
   private:
     std::string filename;
     std::string fileContents;
@@ -16,7 +17,7 @@ class Lexer {
     char currentCharacter;
     void next();
     void prev();
-    Token getNumberToken();
+    std::unique_ptr<Token> getNumberToken();
     bool isDigit();
 };
 
