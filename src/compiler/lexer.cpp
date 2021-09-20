@@ -5,53 +5,50 @@
 Lexer::Lexer(std::string filename, std::string fileContents) {
   this->filename = filename;
   this->fileContents = fileContents;
-  this->position = 0;
   this->currentCharacter = (char)NULL;
+  this->next();
 };
 
 std::vector<std::unique_ptr<Token>> Lexer::getTokens() {
   std::vector<std::unique_ptr<Token>> pTokens;
 
-  this->next();
-
   while (this->currentCharacter != (char)NULL) {
     if (this->currentCharacter == ' ' || this->currentCharacter == '\t') {
       this->next();
-      continue;
     } else if (this->isDigit()) {
       pTokens.push_back(this->getNumberToken());
     } else if (this->currentCharacter == '+') {
-      pTokens.push_back(std::unique_ptr<Token>(new Token(TokenType::Addition))); 
+      pTokens.push_back(std::unique_ptr<Token>(new Token(TokenType::Addition)));
+      this->next();
     } else if (this->currentCharacter == '-') {
-      pTokens.push_back(std::unique_ptr<Token>(new Token(TokenType::Subtraction))); 
+      pTokens.push_back(std::unique_ptr<Token>(new Token(TokenType::Subtraction)));
+      this->next(); 
     } else if (this->currentCharacter == '*') {
-      pTokens.push_back(std::unique_ptr<Token>(new Token(TokenType::Multiplication))); 
+      pTokens.push_back(std::unique_ptr<Token>(new Token(TokenType::Multiplication)));
+      this->next(); 
     } else if (this->currentCharacter == '/') {
-      pTokens.push_back(std::unique_ptr<Token>(new Token(TokenType::Division))); 
+      pTokens.push_back(std::unique_ptr<Token>(new Token(TokenType::Division)));
+      this->next(); 
     } else if (this->currentCharacter == '(') {
-      pTokens.push_back(std::unique_ptr<Token>(new Token(TokenType::LeftParen))); 
+      pTokens.push_back(std::unique_ptr<Token>(new Token(TokenType::LeftParen)));
+      this->next(); 
     } else if (this->currentCharacter == ')') {
       pTokens.push_back(std::unique_ptr<Token>(new Token(TokenType::RightParen)));
+      this->next();
     } else {
       std::string message = "Invalid character '";
       message += this->currentCharacter;
-      message += "' at column: " + std::to_string(this->position - 1);
+      message += "' at " + this->position.toString();
       throw std::runtime_error(message);
     }
-    this->next();
   };
 
   return pTokens;
 }
 
 void Lexer::next() {
-  this->currentCharacter = this->position < this->fileContents.length() ? this->fileContents[this->position] : (char)NULL;
   this->position++;
-}
-
-void Lexer::prev() {
-  this->position--;
-  this->currentCharacter = this->position < this->fileContents.length() ? this->fileContents[this->position] : (char)NULL;
+  this->currentCharacter = this->fileContents[this->position.getIndex()];
 }
 
 bool Lexer::isDigit() {
@@ -81,8 +78,6 @@ std::unique_ptr<Token> Lexer::getNumberToken() {
     value.push_back(this->currentCharacter);
     this->next();
   }
-
-  this->prev();
 
   if (isDouble) {
     return std::unique_ptr<Token>(new NumberToken<double>(TokenType::Double, std::stod(value)));

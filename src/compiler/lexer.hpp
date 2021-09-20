@@ -4,6 +4,7 @@
 #include <memory>
 #include <string>
 #include <vector>
+#include "position.hpp"
 #include "tokens/token.hpp"
 
 class Lexer {
@@ -13,8 +14,8 @@ class Lexer {
   private:
     std::string filename;
     std::string fileContents;
-    long unsigned int position;
     char currentCharacter;
+    Position position = Position(&(this->currentCharacter));
     void next();
     void prev();
     std::unique_ptr<Token> getNumberToken();
