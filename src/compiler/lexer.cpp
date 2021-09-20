@@ -33,7 +33,10 @@ std::vector<std::unique_ptr<Token>> Lexer::getTokens() {
     } else if (this->currentCharacter == ')') {
       pTokens.push_back(std::unique_ptr<Token>(new Token(TokenType::RightParen)));
     } else {
-      throw std::runtime_error("Invalid Character '" + std::to_string(this->currentCharacter) + "' at column: " + std::to_string(this->position - 1));
+      std::string message = "Invalid character '";
+      message += this->currentCharacter;
+      message += "' at column: " + std::to_string(this->position - 1);
+      throw std::runtime_error(message);
     }
     this->next();
   };
